@@ -70,3 +70,49 @@ io.on('connection', socket => {
 });
 
 http.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+// Detect if device is mobile
+const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+
+// Show on-screen buttons if mobile
+if(isMobile){
+    const controls = document.getElementById('controls');
+    if(controls) controls.style.display = 'flex';
+}
+
+// Swipe support for mobile
+let startX, startY;
+const canvas = document.getElementById('gameCanvas');
+
+if(canvas) {
+    canvas.addEventListener('touchstart', e => {
+        const t = e.touches[0];
+        startX = t.clientX;
+        startY = t.clientY;
+    });
+
+    canvas.addEventListener('touchend', e => {
+        const t = e.changedTouches[0];
+        const dx = t.clientX - startX;
+        const dy = t.clientY - startY;
+
+        if(Math.abs(dx) > Math.abs(dy)){
+            dx > 0 ? changeDirection('right') : changeDirection('left');
+        } else {
+            dy > 0 ? changeDirection('down') : changeDirection('up');
+        }
+    });
+}
+
+// Function to change direction (must exist in your game code)
+function changeDirection(dir){
+    if(typeof window.snakeDirection !== 'undefined'){
+        // prevent reversing
+        if((dir==='up' && window.snakeDirection!=='down') || 
+           (dir==='down' && window.snakeDirection!=='up') ||
+           (dir==='left' && window.snakeDirection!=='right') ||
+           (dir==='right' && window.snakeDirection!=='left')){
+            window.snakeDirection = dir;
+        }
+    }
+}
+
